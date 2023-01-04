@@ -17,6 +17,11 @@ defmodule ExConstructorTest do
   end
 
   context "populate_struct" do
+    defmodule OuterStruct do
+      defstruct field: %TestStruct{}
+      use ExConstructor
+    end
+
     import ExConstructor
 
     it "handles maps with string-vs-atom, camel-vs-underscore, and literals" do
@@ -62,6 +67,37 @@ defmodule ExConstructorTest do
       }
 
       assert(struct == populate_struct(%TestStruct{}, kwlist, []))
+    end
+
+    it "handles nested constructors" do
+      map = %{
+        "field" => %{
+          "field_one" => "a",
+          "fieldTwo" => "b",
+          :field_three => "c",
+          :fieldFour => "d",
+          "Field_Six" => "f",
+          "field_seven" => 7,
+          :field_eight => 8,
+          "FieldNine" => "Nine"
+        }
+      }
+
+      struct = %OuterStruct{
+        field: %TestStruct{
+          field_one: "a",
+          field_two: "b",
+          field_three: "c",
+          field_four: "d",
+          field_five: 5,
+          Field_Six: "f",
+          FieldSeven: 7,
+          FieldEight: 8,
+          field_nine: "Nine"
+        }
+      }
+
+      assert(struct == populate_struct(%OuterStruct{}, map, []))
     end
 
     it "converts opts into %Options{}" do
