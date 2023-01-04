@@ -186,6 +186,13 @@ defmodule ExConstructor do
             Map.get(struct, atom)
         end
 
+      value =
+        if is_map(value) and is_struct(Map.get(struct, atom)) do
+          struct |> Map.get(atom) |> populate_struct(value, opts)
+        else
+          value
+        end
+
       Map.put(acc, atom, value)
     end)
   end
